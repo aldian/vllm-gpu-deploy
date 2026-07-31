@@ -93,6 +93,31 @@ locals {
       max_model_len         = 2048
       gated                 = false
     }
+    # --- Gemma 4 family (April 2026, Apache 2.0, multimodal: text+image+audio) ---
+    "gemma-4-e2b-it" = {
+      model_id              = "google/gemma-4-E2B-it"
+      machine_type          = "g2-standard-4"
+      max_model_len         = 131072
+      gpu_memory_utilization = 0.85
+      gated                 = true
+      multimodal            = true
+    }
+    "gemma-4-e4b-it" = {
+      model_id              = "google/gemma-4-E4B-it"
+      machine_type          = "g2-standard-4"
+      max_model_len         = 131072
+      gpu_memory_utilization = 0.90
+      gated                 = true
+      multimodal            = true
+    }
+    "gemma-4-26b-moe-it" = {
+      model_id              = "google/gemma-4-26B-A4B-it"
+      machine_type          = "g2-standard-4"
+      max_model_len         = 262144
+      gpu_memory_utilization = 0.90
+      gated                 = true
+      multimodal            = true
+    }
     # ================================================================
     # LARGE MODELS — multi-GPU, A100/H100, expensive
     # ================================================================
@@ -162,6 +187,16 @@ locals {
       disk_size_gb          = 1500
       extra_vllm_args       = "--quantization fp8"
       gated                 = true
+    }
+    "gemma-4-31b-it" = {
+      model_id              = "google/gemma-4-31B-it"
+      machine_type          = "a2-ultragpu-2g"  # 2x A100 80GB = 160GB
+      max_model_len         = 262144
+      gpu_memory_utilization = 0.90
+      tensor_parallel_size  = 2
+      disk_size_gb          = 300
+      gated                 = true
+      multimodal            = true
     }
   }
 }

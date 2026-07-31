@@ -50,6 +50,9 @@ Pick a preset and Terraform selects the right GPU, context length, and memory tu
 | `gemma-2-9b-it` | Gemma 2 9B | 9B | **Yes** | No | 1x L4 |
 | `gemma-3-4b-it` | Gemma 3 4B | 4B | **Yes** | **Text + Image** | 1x L4 |
 | `gemma-3-12b-it` | Gemma 3 12B | 12B | **Yes** | **Text + Image** | 1x L4 |
+| `gemma-4-e2b-it` | Gemma 4 E2B | 2.3B eff | **Yes** | **Text+Img+Audio** | 1x L4 |
+| `gemma-4-e4b-it` | Gemma 4 E4B | ~8B | **Yes** | **Text+Img+Audio** | 1x L4 |
+| `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text+Img+Audio** | 1x L4 |
 | `llama-3.2-1b-instruct` | Llama 3.2 1B | 1B | **Yes** | No | 1x L4 |
 | `llama-3.2-3b-instruct` | Llama 3.2 3B | 3B | **Yes** | No | 1x L4 |
 
@@ -66,6 +69,7 @@ These models require tensor parallelism across multiple GPUs. Costs are **$10-30
 | `deepseek-r1` | DeepSeek R1 | 671B (MoE) | 8x H100 80GB | 1TB | ~$30/hr |
 | `kimi-k3` | Kimi K3 | 2.8T (MoE) | 8x H100 80GB | 2TB | ~$30/hr |
 | `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | 8x H100 80GB | 1.5TB | ~$30/hr |
+| `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | 2x A100 80GB | 300GB | ~$12/hr |
 
 > ⚠️ **Cost warning**: These models are not for experimentation. A single boot cycle (download + load) can take **30-60+ minutes** and cost **$15-30**. Only deploy if you have a production use case and budget.
 
