@@ -77,35 +77,44 @@ echo "=== Pulling vLLM image: ${vllm_image} ==="
 docker pull ${vllm_image}
 
 echo "=== Starting vLLM container ==="
+
+# Build vLLM CLI args
+VLLM_ARGS="--model ${model_id} --port ${vllm_port} --host 0.0.0.0 --max-model-len ${max_model_len} --gpu-memory-utilization ${gpu_memory_utilization} --tensor-parallel-size ${tensor_parallel_size}"
+
+# Append extra args if set (e.g. --trust-remote-code, --quantization)
+if [ -n "${extra_vllm_args}" ]; then
+  VLLM_ARGS="$${VLLM_ARGS} ${extra_vllm_args}"
+fi
+
+echo "vLLM args: $${VLLM_ARGS}"
+
+# Use larger shared memory for multi-GPU models
+SHM_SIZE=4G
+if [ "${tensor_parallel_size}" -gt 1 ]; then
+  SHM_SIZE=16G
+fi
+
 if [ -n "${hf_token}" ]; then
   docker run -d \
     --name vllm \
     --runtime=nvidia \
     --gpus all \
-    --shm-size=4G \
+    --shm-size=$${SHM_SIZE} \
     --restart unless-stopped \
     -p ${vllm_port}:${vllm_port} \
     -e HUGGING_FACE_HUB_TOKEN=*** \
     ${vllm_image} \
-    --model ${model_id} \
-    --port ${vllm_port} \
-    --host 0.0.0.0 \
-    --max-model-len ${max_model_len} \
-    --gpu-memory-utilization ${gpu_memory_utilization}
+    $${VLLM_ARGS}
 else
   docker run -d \
     --name vllm \
     --runtime=nvidia \
     --gpus all \
-    --shm-size=4G \
+    --shm-size=$${SHM_SIZE} \
     --restart unless-stopped \
     -p ${vllm_port}:${vllm_port} \
     ${vllm_image} \
-    --model ${model_id} \
-    --port ${vllm_port} \
-    --host 0.0.0.0 \
-    --max-model-len ${max_model_len} \
-    --gpu-memory-utilization ${gpu_memory_utilization}
+    $${VLLM_ARGS}
 fi
 
 echo "=== vLLM container started at $(date) ==="

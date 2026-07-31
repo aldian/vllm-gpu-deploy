@@ -14,7 +14,7 @@ git clone https://github.com/aldian/vllm-gpu-deploy.git
 cd vllm-gpu-deploy
 
 # For gated models (Gemma, Llama) — put your HF token in .env
-echo 'HF_TOKEN=hf_you...ere' > .env
+echo 'HF_TOKEN=*** > .env
 
 # Deploy default model (Qwen 2.5 3B — no token needed)
 terraform init
@@ -34,7 +34,7 @@ terraform destroy -auto-approve
 
 ## Supported models
 
-### Presets (curated, auto-configured)
+### Small/medium models — single GPU (affordable)
 
 Pick a preset and Terraform selects the right GPU, context length, and memory tuning:
 
@@ -52,6 +52,24 @@ Pick a preset and Terraform selects the right GPU, context length, and memory tu
 | `gemma-3-12b-it` | Gemma 3 12B | 12B | **Yes** | **Text + Image** | 1x L4 |
 | `llama-3.2-1b-instruct` | Llama 3.2 1B | 1B | **Yes** | No | 1x L4 |
 | `llama-3.2-3b-instruct` | Llama 3.2 3B | 3B | **Yes** | No | 1x L4 |
+
+### Large models — multi-GPU (expensive)
+
+These models require tensor parallelism across multiple GPUs. Costs are **$10-30+/hr**.
+
+| Preset | Model | Params | GPUs | Disk | Est. cost/hr |
+|---|---|---|---|---|---|
+| `mixtral-8x7b-instruct` | Mixtral 8x7B | 47B (MoE) | 2x A100 80GB | 300GB | ~$12/hr |
+| `qwen2.5-72b-instruct` | Qwen 2.5 72B | 72B | 2x A100 80GB | 300GB | ~$12/hr |
+| `mixtral-8x22b-instruct` | Mixtral 8x22B | 141B (MoE) | 4x A100 80GB | 500GB | ~$24/hr |
+| `deepseek-v3` | DeepSeek V3 | 671B (MoE) | 8x H100 80GB | 1TB | ~$30/hr |
+| `deepseek-r1` | DeepSeek R1 | 671B (MoE) | 8x H100 80GB | 1TB | ~$30/hr |
+| `kimi-k3` | Kimi K3 | 2.8T (MoE) | 8x H100 80GB | 2TB | ~$30/hr |
+| `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | 8x H100 80GB | 1.5TB | ~$30/hr |
+
+> ⚠️ **Cost warning**: These models are not for experimentation. A single boot cycle (download + load) can take **30-60+ minutes** and cost **$15-30**. Only deploy if you have a production use case and budget.
+
+> ⚠️ **Kimi K3 / DeepSeek V3 note**: These are massive MoE models. Even with 8x H100 (640GB VRAM), they require quantization (MXFP4/FP8) to fit. The preset includes the right quantization flag automatically. Verify latest vLLM support before deploying: https://docs.vllm.ai/en/stable/models/supported_models.html
 
 ### Any model (bring your own)
 
@@ -96,6 +114,16 @@ terraform apply -auto-approve \
   -var="gpu_memory_utilization=0.90"
 ```
 
+### Large model with multi-GPU (custom)
+
+```bash
+terraform apply -auto-approve \
+  -var="model_id=Qwen/QwQ-32B-Preview" \
+  -var="machine_type=a2-ultragpu-2g" \
+  -var="tensor_parallel_size=2" \
+  -var="disk_size_gb=300"
+```
+
 ### Different zone (GPU capacity issues)
 
 ```bash
@@ -113,12 +141,22 @@ Internet → GCE VM (g2-standard-N + NVIDIA L4 GPU)
 
 ## Cost estimate
 
+### Single-GPU (L4)
+
 | Machine type | GPUs | VRAM | CPU | RAM | Est. cost/hr |
 |---|---|---|---|---|---|
 | g2-standard-4 | 1x L4 | 24GB | 4 vCPU | 16GB | ~$0.70 |
 | g2-standard-8 | 1x L4 | 24GB | 8 vCPU | 32GB | ~$1.10 |
 | g2-standard-16 | 1x L4 | 24GB | 16 vCPU | 64GB | ~$1.80 |
 | g2-standard-24 | 2x L4 | 48GB | 24 vCPU | 96GB | ~$2.50 |
+
+### Multi-GPU (A100/H100 — for large models)
+
+| Machine type | GPUs | VRAM | Est. cost/hr |
+|---|---|---|---|
+| a2-ultragpu-2g | 2x A100 80GB | 160GB | ~$12/hr |
+| a2-ultragpu-4g | 4x A100 80GB | 320GB | ~$24/hr |
+| a3-highgpu-8g | 8x H100 80GB | 640GB | ~$30/hr |
 
 Costs are approximate (us-central1, sustained-use discount applied). Always destroy after testing.
 
@@ -152,6 +190,18 @@ gcloud compute regions describe us-central1 \
 # If 0, request quota: https://console.cloud.google.com/iam-admin/quotas
 ```
 
+For large models, you also need A100/H100 GPU quota:
+
+```bash
+# Check A100 quota
+gcloud compute regions describe us-central1 \
+  --format="(quotas.filter(name:A2_CPUS).limit)"
+
+# Check H100 quota
+gcloud compute regions describe us-central1 \
+  --format="(quotas.filter(name:A3_CPUS).limit)"
+```
+
 ### 3. Set your GCP project ID
 
 Edit `variables.tf` and change the `project_id` default, or pass it at deploy time:
@@ -167,7 +217,7 @@ Gated models (Gemma, Llama) require a token. Open models (Qwen, Mistral, Phi, Ti
 ```bash
 # Create token: https://huggingface.co/settings/tokens
 # Accept license on the model page (e.g. https://huggingface.co/google/gemma-3-4b-it)
-echo 'HF_TOKEN=***' > .env
+echo 'HF_TOKEN=*** > .env
 ```
 
 ## After deploy: wait for boot
@@ -178,6 +228,8 @@ The startup script needs ~5-10 minutes to:
 3. Pull vLLM Docker image (~5GB)
 4. Download model weights
 5. Compile CUDA graphs and start serving
+
+Large models (DeepSeek V3, Kimi K3) can take **30-60+ minutes** just for weight download + load.
 
 ### Monitor progress
 
@@ -281,7 +333,7 @@ Removes the VM, static IP, firewall rules, and service account. Everything is go
 | File | Description |
 |---|---|
 | `main.tf` | Terraform: GCE GPU instance, firewall, static IP, service account |
-| `variables.tf` | 12 model presets + configurable variables (model, zone, GPU, memory) |
+| `variables.tf` | 19 model presets + configurable variables (model, zone, GPU, memory, tensor parallelism) |
 | `startup.sh.tpl` | Startup script: NVIDIA driver, Docker, vLLM container |
 | `test_vllm.py` | Test suite: health check, chat, streaming, throughput |
 | `.env` | HuggingFace token for gated models (gitignored) |

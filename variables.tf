@@ -93,6 +93,76 @@ locals {
       max_model_len         = 2048
       gated                 = false
     }
+    # ================================================================
+    # LARGE MODELS — multi-GPU, A100/H100, expensive
+    # ================================================================
+    "mixtral-8x7b-instruct" = {
+      model_id              = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+      machine_type          = "a2-ultragpu-2g"  # 2x A100 80GB = 160GB
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.90
+      tensor_parallel_size  = 2
+      disk_size_gb          = 300
+      gated                 = false
+    }
+    "qwen2.5-72b-instruct" = {
+      model_id              = "Qwen/Qwen2.5-72B-Instruct"
+      machine_type          = "a2-ultragpu-2g"  # 2x A100 80GB = 160GB
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.92
+      tensor_parallel_size  = 2
+      disk_size_gb          = 300
+      gated                 = false
+    }
+    "mixtral-8x22b-instruct" = {
+      model_id              = "mistralai/Mixtral-8x22B-Instruct-v0.1"
+      machine_type          = "a2-ultragpu-4g"  # 4x A100 80GB = 320GB
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.92
+      tensor_parallel_size  = 4
+      disk_size_gb          = 500
+      gated                 = false
+    }
+    "deepseek-v3" = {
+      model_id              = "deepseek-ai/DeepSeek-V3"
+      machine_type          = "a3-highgpu-8g"   # 8x H100 80GB = 640GB
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.95
+      tensor_parallel_size  = 8
+      disk_size_gb          = 1000
+      extra_vllm_args       = "--trust-remote-code"
+      gated                 = false
+    }
+    "deepseek-r1" = {
+      model_id              = "deepseek-ai/DeepSeek-R1"
+      machine_type          = "a3-highgpu-8g"   # 8x H100 80GB = 640GB
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.95
+      tensor_parallel_size  = 8
+      disk_size_gb          = 1000
+      extra_vllm_args       = "--trust-remote-code"
+      gated                 = false
+    }
+    "kimi-k3" = {
+      model_id              = "moonshotai/Kimi-K3"
+      machine_type          = "a3-highgpu-8g"   # 8x H100 80GB = 640GB (see note)
+      max_model_len         = 131072
+      gpu_memory_utilization = 0.95
+      tensor_parallel_size  = 8
+      disk_size_gb          = 2000
+      extra_vllm_args       = "--trust-remote-code --quantization mxfp4"
+      gated                 = false
+    }
+    "llama-3.1-405b-instruct" = {
+      model_id              = "meta-llama/Llama-3.1-405B-Instruct"
+      machine_type          = "a3-highgpu-8g"   # 8x H100 80GB = 640GB (needs FP8)
+      max_model_len         = 32768
+      gpu_memory_utilization = 0.95
+      tensor_parallel_size  = 8
+      disk_size_gb          = 1500
+      extra_vllm_args       = "--quantization fp8"
+      gated                 = true
+    }
   }
 }
 
@@ -164,6 +234,24 @@ variable "vllm_image" {
   default     = "vllm/vllm-openai:latest"
 }
 
+variable "tensor_parallel_size" {
+  description = "Number of GPUs to split the model across (tensor parallelism). Auto-set by presets; override for custom models."
+  type        = number
+  default     = null
+}
+
+variable "disk_size_gb" {
+  description = "Boot disk size in GB. Large models need bigger disks for weight downloads."
+  type        = number
+  default     = null
+}
+
+variable "extra_vllm_args" {
+  description = "Additional vLLM CLI arguments (e.g. '--trust-remote-code --quantization fp8'). Auto-set by some presets."
+  type        = string
+  default     = null
+}
+
 variable "hf_token" {
   description = "HuggingFace token. Required for gated models (Gemma, Llama). Get one at https://huggingface.co/settings/tokens"
   type        = string
@@ -189,6 +277,9 @@ locals {
   effective_machine_type = coalesce(var.machine_type, lookup(local.preset, "machine_type", "g2-standard-4"))
   effective_max_model_len = coalesce(var.max_model_len, lookup(local.preset, "max_model_len", 4096))
   effective_gpu_memory_utilization = coalesce(var.gpu_memory_utilization, lookup(local.preset, "gpu_memory_utilization", 0.85))
+  effective_tensor_parallel_size = coalesce(var.tensor_parallel_size, lookup(local.preset, "tensor_parallel_size", 1))
+  effective_disk_size_gb = coalesce(var.disk_size_gb, lookup(local.preset, "disk_size_gb", 100))
+  effective_extra_vllm_args = coalesce(var.extra_vllm_args, lookup(local.preset, "extra_vllm_args", ""))
   effective_port = var.vllm_port == 0 ? 8000 : var.vllm_port
 
   is_gated     = lookup(local.preset, "gated", false)

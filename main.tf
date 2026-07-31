@@ -69,7 +69,7 @@ resource "google_compute_instance" "vllm" {
   boot_disk {
     initialize_params {
       image = "projects/debian-cloud/global/images/family/debian-12"
-      size  = 100
+      size  = local.effective_disk_size_gb
     }
   }
 
@@ -101,6 +101,8 @@ resource "google_compute_instance" "vllm" {
       vllm_image             = var.vllm_image
       max_model_len          = local.effective_max_model_len
       gpu_memory_utilization = local.effective_gpu_memory_utilization
+      tensor_parallel_size   = local.effective_tensor_parallel_size
+      extra_vllm_args        = local.effective_extra_vllm_args
       hf_token               = var.hf_token
     }
   )
@@ -133,6 +135,16 @@ output "model_id" {
 output "machine_type" {
   description = "GCE machine type in use"
   value       = local.effective_machine_type
+}
+
+output "tensor_parallel_size" {
+  description = "Number of GPUs used for tensor parallelism"
+  value       = local.effective_tensor_parallel_size
+}
+
+output "disk_size_gb" {
+  description = "Boot disk size in GB"
+  value       = local.effective_disk_size_gb
 }
 
 output "multimodal" {
