@@ -185,6 +185,7 @@ locals {
       disk_size_gb          = 2000
       extra_vllm_args       = "--trust-remote-code --quantization mxfp4"
       gated                 = false
+      multimodal            = true
     }
     "llama-3.1-405b-instruct" = {
       model_id              = "meta-llama/Llama-3.1-405B-Instruct"

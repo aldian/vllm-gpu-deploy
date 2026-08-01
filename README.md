@@ -71,7 +71,7 @@ These models require tensor parallelism across multiple GPUs. Costs are **$10-30
 | `deepseek-r1` | DeepSeek R1 | 671B (MoE) | No | No | 8x H100 80GB | ~$30/hr |
 | `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | **Yes** | No | 8x H100 80GB | ~$30/hr |
 | `gpt-oss-120b` | OpenAI GPT-OSS 120B | 120B (5.1B active) | No | No | 8x H100 80GB | ~$30/hr |
-| `kimi-k3` | Kimi K3 | 2.8T (MoE) | No | No | 8x H100 80GB | ~$30/hr |
+| `kimi-k3` | Kimi K3 | 2.8T (MoE) | No | **Text + Image** | 8x H100 80GB | ~$30/hr |
 
 > ⚠️ **Cost warning**: These models are not for experimentation. A single boot cycle (download + load) can take **30-60+ minutes** and cost **$15-30**. Only deploy if you have a production use case and budget.
 
