@@ -38,40 +38,40 @@ terraform destroy -auto-approve
 
 Pick a preset and Terraform selects the right GPU, context length, and memory tuning:
 
-| Preset | Model | Params | Gated? | Multimodal? | Min GPU |
-|---|---|---|---|---|---|
-| `qwen2.5-3b-instruct` | Qwen 2.5 3B | 3B | No | No | 1x L4 |
-| `qwen2.5-7b-instruct` | Qwen 2.5 7B | 7B | No | No | 1x L4 |
-| `qwen2.5-14b-instruct` | Qwen 2.5 14B | 14B | No | No | 1x L4 (tight) |
-| `mistral-7b-instruct` | Mistral 7B v0.3 | 7B | No | No | 1x L4 |
-| `phi-3.5-mini-instruct` | Phi 3.5 Mini | 3.8B | No | No | 1x L4 |
-| `tinyllama-1.1b-chat` | TinyLlama 1.1B | 1.1B | No | No | 1x L4 |
-| `gemma-2-2b-it` | Gemma 2 2B | 2B | **Yes** | No | 1x L4 |
-| `gemma-2-9b-it` | Gemma 2 9B | 9B | **Yes** | No | 1x L4 |
-| `gemma-3-4b-it` | Gemma 3 4B | 4B | **Yes** | **Text + Image** | 1x L4 |
-| `gemma-3-12b-it` | Gemma 3 12B | 12B | **Yes** | **Text + Image** | 1x L4 |
-| `gemma-4-e2b-it` | Gemma 4 E2B | 2.3B eff | **Yes** | **Text+Img+Audio** | 1x L4 |
-| `gemma-4-e4b-it` | Gemma 4 E4B | ~8B | **Yes** | **Text+Img+Audio** | 1x L4 |
-| `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text+Img+Audio** | 1x L4 |
-| `gpt-oss-20b` | OpenAI GPT-OSS 20B | 20B (3.6B active) | No | No | 1x L4 |
-| `llama-3.2-1b-instruct` | Llama 3.2 1B | 1B | **Yes** | No | 1x L4 |
-| `llama-3.2-3b-instruct` | Llama 3.2 3B | 3B | **Yes** | No | 1x L4 |
+| Preset | Model | Params | Gated? | Multimodal? | GPU(s) | Cost/hr |
+|---|---|---|---|---|---|---|
+| `tinyllama-1.1b-chat` | TinyLlama 1.1B | 1.1B | No | No | 1x L4 | ~$0.70 |
+| `llama-3.2-1b-instruct` | Llama 3.2 1B | 1B | **Yes** | No | 1x L4 | ~$0.70 |
+| `llama-3.2-3b-instruct` | Llama 3.2 3B | 3B | **Yes** | No | 1x L4 | ~$0.70 |
+| `qwen2.5-3b-instruct` | Qwen 2.5 3B | 3B | No | No | 1x L4 | ~$0.70 |
+| `gemma-2-2b-it` | Gemma 2 2B | 2B | **Yes** | No | 1x L4 | ~$0.70 |
+| `phi-3.5-mini-instruct` | Phi 3.5 Mini | 3.8B | No | No | 1x L4 | ~$0.70 |
+| `gemma-3-4b-it` | Gemma 3 4B | 4B | **Yes** | **Text + Image** | 1x L4 | ~$0.70 |
+| `qwen2.5-7b-instruct` | Qwen 2.5 7B | 7B | No | No | 1x L4 | ~$0.70 |
+| `mistral-7b-instruct` | Mistral 7B v0.3 | 7B | No | No | 1x L4 | ~$0.70 |
+| `gemma-2-9b-it` | Gemma 2 9B | 9B | **Yes** | No | 1x L4 | ~$0.70 |
+| `gemma-4-e2b-it` | Gemma 4 E2B | 2.3B eff | **Yes** | **Text+Img+Audio** | 1x L4 | ~$0.70 |
+| `gemma-4-e4b-it` | Gemma 4 E4B | ~8B | **Yes** | **Text+Img+Audio** | 1x L4 | ~$0.70 |
+| `qwen2.5-14b-instruct` | Qwen 2.5 14B | 14B | No | No | 1x L4 (tight) | ~$0.70 |
+| `gemma-3-12b-it` | Gemma 3 12B | 12B | **Yes** | **Text + Image** | 1x L4 | ~$0.70 |
+| `gpt-oss-20b` | OpenAI GPT-OSS 20B | 20B (3.6B active) | No | No | 1x L4 | ~$0.70 |
+| `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text+Img+Audio** | 1x L4 | ~$0.70 |
 
 ### Large models — multi-GPU (expensive)
 
 These models require tensor parallelism across multiple GPUs. Costs are **$10-30+/hr**.
 
-| Preset | Model | Params | GPUs | Disk | Est. cost/hr |
-|---|---|---|---|---|---|
-| `mixtral-8x7b-instruct` | Mixtral 8x7B | 47B (MoE) | 2x A100 80GB | 300GB | ~$12/hr |
-| `qwen2.5-72b-instruct` | Qwen 2.5 72B | 72B | 2x A100 80GB | 300GB | ~$12/hr |
-| `mixtral-8x22b-instruct` | Mixtral 8x22B | 141B (MoE) | 4x A100 80GB | 500GB | ~$24/hr |
-| `deepseek-v3` | DeepSeek V3 | 671B (MoE) | 8x H100 80GB | 1TB | ~$30/hr |
-| `deepseek-r1` | DeepSeek R1 | 671B (MoE) | 8x H100 80GB | 1TB | ~$30/hr |
-| `kimi-k3` | Kimi K3 | 2.8T (MoE) | 8x H100 80GB | 2TB | ~$30/hr |
-| `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | 8x H100 80GB | 1.5TB | ~$30/hr |
-| `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | 2x A100 80GB | 300GB | ~$12/hr |
-| `gpt-oss-120b` | OpenAI GPT-OSS 120B | 120B (5.1B active) | 8x H100 80GB | 500GB | ~$30/hr |
+| Preset | Model | Params | Gated? | Multimodal? | GPU(s) | Cost/hr |
+|---|---|---|---|---|---|---|
+| `mixtral-8x7b-instruct` | Mixtral 8x7B | 47B (MoE) | No | No | 2x A100 80GB | ~$12/hr |
+| `qwen2.5-72b-instruct` | Qwen 2.5 72B | 72B | No | No | 2x A100 80GB | ~$12/hr |
+| `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | **Yes** | **Text+Img+Audio** | 2x A100 80GB | ~$12/hr |
+| `mixtral-8x22b-instruct` | Mixtral 8x22B | 141B (MoE) | No | No | 4x A100 80GB | ~$24/hr |
+| `deepseek-v3` | DeepSeek V3 | 671B (MoE) | No | No | 8x H100 80GB | ~$30/hr |
+| `deepseek-r1` | DeepSeek R1 | 671B (MoE) | No | No | 8x H100 80GB | ~$30/hr |
+| `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | **Yes** | No | 8x H100 80GB | ~$30/hr |
+| `gpt-oss-120b` | OpenAI GPT-OSS 120B | 120B (5.1B active) | No | No | 8x H100 80GB | ~$30/hr |
+| `kimi-k3` | Kimi K3 | 2.8T (MoE) | No | No | 8x H100 80GB | ~$30/hr |
 
 > ⚠️ **Cost warning**: These models are not for experimentation. A single boot cycle (download + load) can take **30-60+ minutes** and cost **$15-30**. Only deploy if you have a production use case and budget.
 
