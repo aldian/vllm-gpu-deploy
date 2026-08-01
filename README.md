@@ -55,7 +55,7 @@ Pick a preset and Terraform selects the right GPU, context length, and memory tu
 | `qwen2.5-14b-instruct` | Qwen 2.5 14B | 14B | No | No | 1x L4 (tight) | ~$0.70 |
 | `gemma-3-12b-it` | Gemma 3 12B | 12B | **Yes** | **Text + Image** | 1x L4 | ~$0.70 |
 | `gpt-oss-20b` | OpenAI GPT-OSS 20B | 20B (3.6B active) | No | No | 1x L4 | ~$0.70 |
-| `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text+Img+Audio** | 1x L4 | ~$0.70 |
+| `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text + Image** | 1x L4 | ~$0.70 |
 
 ### Large models — multi-GPU (expensive)
 
@@ -65,7 +65,7 @@ These models require tensor parallelism across multiple GPUs. Costs are **$10-30
 |---|---|---|---|---|---|---|
 | `mixtral-8x7b-instruct` | Mixtral 8x7B | 47B (MoE) | No | No | 2x A100 80GB | ~$12/hr |
 | `qwen2.5-72b-instruct` | Qwen 2.5 72B | 72B | No | No | 2x A100 80GB | ~$12/hr |
-| `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | **Yes** | **Text+Img+Audio** | 2x A100 80GB | ~$12/hr |
+| `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | **Yes** | **Text + Image** | 2x A100 80GB | ~$12/hr |
 | `mixtral-8x22b-instruct` | Mixtral 8x22B | 141B (MoE) | No | No | 4x A100 80GB | ~$24/hr |
 | `deepseek-v3` | DeepSeek V3 | 671B (MoE) | No | No | 8x H100 80GB | ~$30/hr |
 | `deepseek-r1` | DeepSeek R1 | 671B (MoE) | No | No | 8x H100 80GB | ~$30/hr |
