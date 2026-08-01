@@ -118,6 +118,14 @@ locals {
       gated                 = true
       multimodal            = true
     }
+    # --- OpenAI GPT-OSS (Apache 2.0, natively MXFP4, reasoning) ---
+    "gpt-oss-20b" = {
+      model_id              = "openai/gpt-oss-20b"
+      machine_type          = "g2-standard-4"
+      max_model_len         = 131072
+      gpu_memory_utilization = 0.90
+      gated                 = false
+    }
     # ================================================================
     # LARGE MODELS — multi-GPU, A100/H100, expensive
     # ================================================================
@@ -197,6 +205,15 @@ locals {
       disk_size_gb          = 300
       gated                 = true
       multimodal            = true
+    }
+    "gpt-oss-120b" = {
+      model_id              = "openai/gpt-oss-120b"
+      machine_type          = "a3-highgpu-8g"   # 8x H100 80GB = 640GB (MXFP4 native)
+      max_model_len         = 131072
+      gpu_memory_utilization = 0.95
+      tensor_parallel_size  = 8
+      disk_size_gb          = 500
+      gated                 = false
     }
   }
 }

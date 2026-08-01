@@ -53,6 +53,7 @@ Pick a preset and Terraform selects the right GPU, context length, and memory tu
 | `gemma-4-e2b-it` | Gemma 4 E2B | 2.3B eff | **Yes** | **Text+Img+Audio** | 1x L4 |
 | `gemma-4-e4b-it` | Gemma 4 E4B | ~8B | **Yes** | **Text+Img+Audio** | 1x L4 |
 | `gemma-4-26b-moe-it` | Gemma 4 26B MoE | 26B (4B active) | **Yes** | **Text+Img+Audio** | 1x L4 |
+| `gpt-oss-20b` | OpenAI GPT-OSS 20B | 20B (3.6B active) | No | No | 1x L4 |
 | `llama-3.2-1b-instruct` | Llama 3.2 1B | 1B | **Yes** | No | 1x L4 |
 | `llama-3.2-3b-instruct` | Llama 3.2 3B | 3B | **Yes** | No | 1x L4 |
 
@@ -70,6 +71,7 @@ These models require tensor parallelism across multiple GPUs. Costs are **$10-30
 | `kimi-k3` | Kimi K3 | 2.8T (MoE) | 8x H100 80GB | 2TB | ~$30/hr |
 | `llama-3.1-405b-instruct` | Llama 3.1 405B | 405B | 8x H100 80GB | 1.5TB | ~$30/hr |
 | `gemma-4-31b-it` | Gemma 4 31B Dense | 31B | 2x A100 80GB | 300GB | ~$12/hr |
+| `gpt-oss-120b` | OpenAI GPT-OSS 120B | 120B (5.1B active) | 8x H100 80GB | 500GB | ~$30/hr |
 
 > ⚠️ **Cost warning**: These models are not for experimentation. A single boot cycle (download + load) can take **30-60+ minutes** and cost **$15-30**. Only deploy if you have a production use case and budget.
 
