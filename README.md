@@ -326,6 +326,38 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+## Fine-tuning & serving custom LoRA models
+
+You can fine-tune any supported open-weight model (such as `Qwen/Qwen2.5-3B-Instruct`, `Llama`, or `Gemma`) with QLoRA and serve your custom adapter through the same vLLM Terraform stack.
+
+```mermaid
+flowchart LR
+    A["1. Fine-Tune (QLoRA)\nexamples/finetune-lora/finetune_lora.py"] --> B["2. Export Adapter / Merged Model\nLocal dir or HuggingFace Hub"]
+    B --> C["3. Serve in vLLM\nextra_vllm_args or model_id"]
+```
+
+See the full walkthrough in [`examples/finetune-lora/README.md`](examples/finetune-lora/README.md):
+
+1. **Train a QLoRA adapter** on a single 24GB L4 GPU (stop the `vllm` container first if training on the same VM):
+
+   ```bash
+   python3 examples/finetune-lora/finetune_lora.py \
+     --model-id Qwen/Qwen2.5-3B-Instruct \
+     --dataset examples/finetune-lora/sample_dataset.jsonl \
+     --output-dir ./outputs/qwen2.5-3b-lora \
+     --push-to-hub YOUR_HF_USER/qwen2.5-3b-hipaa-lora
+   ```
+
+2. **Serve the LoRA adapter alongside the base model** via `extra_vllm_args`:
+
+   ```bash
+   terraform apply -auto-approve \
+     -var="model_preset=qwen2.5-3b-instruct" \
+     -var="extra_vllm_args=--enable-lora --lora-modules my-finetune=YOUR_HF_USER/qwen2.5-3b-hipaa-lora"
+   ```
+
+   Or merge the adapter weights into a standalone model (`--merge-and-save`) and deploy with `-var="model_id=YOUR_HF_USER/qwen2.5-3b-hipaa-merged"`.
+
 ## Destroy (stop paying)
 
 ```bash
@@ -342,6 +374,7 @@ Removes the VM, static IP, firewall rules, and service account. Everything is go
 | `variables.tf` | 19 model presets + configurable variables (model, zone, GPU, memory, tensor parallelism) |
 | `startup.sh.tpl` | Startup script: NVIDIA driver, Docker, vLLM container |
 | `test_vllm.py` | Test suite: health check, chat, streaming, throughput |
+| `examples/finetune-lora/` | End-to-end QLoRA fine-tuning example (`finetune_lora.py`, `sample_dataset.jsonl`, `README.md`) |
 | `.env` | HuggingFace token for gated models (gitignored) |
 | `.gitignore` | Ignores tfstate, .terraform, .env |
 
